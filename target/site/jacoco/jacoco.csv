@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+user-registration-service,com.mycompany.demo.service.impl,UserServiceImpl.new Function() {...},0,11,0,0,0,2,0,2,0,2
+user-registration-service,com.mycompany.demo.service.impl,UserServiceImpl,0,83,0,2,0,17,0,5,0,4
+user-registration-service,com.mycompany.demo.validator,UserValidator,0,106,3,23,0,31,3,16,0,6
+user-registration-service,com.mycompany.demo.constant,CommonCodes.ERROR_CODE,0,45,0,0,0,9,0,4,0,4
+user-registration-service,com.mycompany.demo.controller,UserRegistrationResource,0,121,0,0,0,28,0,8,0,8
+user-registration-service,com.mycompany.demo.util,DateUtil,0,20,0,0,0,7,0,3,0,3
+user-registration-service,com.mycompany.demo,UserRegistrationApplication,0,8,0,0,0,3,0,2,0,2

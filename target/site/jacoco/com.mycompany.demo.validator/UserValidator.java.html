@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">user-registration-service</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.demo.validator</a> &gt; <span class="el_source">UserValidator.java</span></div><h1>UserValidator.java</h1><pre class="source lang-java linenums">package com.mycompany.demo.validator;
+
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+import com.mycompany.demo.dto.User;
+import com.mycompany.demo.util.DateUtil;
+
+@Component()
+<span class="fc" id="L11">public class UserValidator implements Validator {</span>
+
+	private static final String ATLEAST_ONE_UPPERCASE = &quot;(.*[A-Z].*)&quot;;
+
+	private static final String ATLEAST_ONE_NUMBER = &quot;(.*[0-9].*)&quot;;
+
+	private static final String ATLEAST_ONE_SPL_CHAR = &quot;(.*[,~,!,@,#,$,%,^,&amp;,*,(,),-,_,=,+,[,{,],},|,;,:,&lt;,&gt;,/,?,( )].*$)&quot;;
+
+	private static final String ATLEAST_ONE_SPACE = &quot;(.*( ).*)&quot;;
+
+	public static final String INVALID_USER_MSG = &quot;No space, dot or hiphen allowed in user name&quot;;
+
+	public static final String INVALID_PASSWORD_MSG = &quot;Password must be atleast four characters in lenght, must containg at least one upper case character, and atleast one number&quot;;
+
+	public static final String INVALID_DATE_MSG = &quot;Date of birth must follow yyyy-MM-dd format (ISO 8601 standard without timestamp)&quot;;
+
+	@Override
+	public boolean supports(Class&lt;?&gt; clazz) {
+<span class="fc" id="L29">		return User.class.equals(clazz);</span>
+	}
+
+	@Override
+	public void validate(Object target, Errors errors) {
+<span class="fc" id="L34">		User user = (User) target;</span>
+
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">		if (!isValidUserName(user.getUserName())) {</span>
+<span class="fc" id="L37">			errors.rejectValue(&quot;userName&quot;, &quot;invalid.userName&quot;, INVALID_USER_MSG);</span>
+		}
+
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		if (!isValidPassword(user.getPassword())) {</span>
+<span class="fc" id="L41">			errors.rejectValue(&quot;password&quot;, &quot;invalid.password&quot;, INVALID_PASSWORD_MSG);</span>
+		}
+
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (!isValidDate(user.getDateOfBirth())) {</span>
+<span class="fc" id="L45">			errors.rejectValue(&quot;dateOfBirth&quot;, &quot;invalid.date.format&quot;, INVALID_DATE_MSG);</span>
+		}
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * username (alphanumerical, no spaces) . and - will be allowed in user name
+	 */
+	public boolean isValidUserName(String userName) {
+<span class="fc" id="L53">		boolean valid = true;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">		if (userName.length() &lt; 4) {</span>
+<span class="fc" id="L55">			valid = false;</span>
+		}
+
+<span class="fc" id="L58">		String specialChars = ATLEAST_ONE_SPL_CHAR;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">		if (userName.matches(specialChars)) {</span>
+<span class="fc" id="L60">			valid = false;</span>
+		}
+
+<span class="fc" id="L63">		return valid;</span>
+	}
+
+	/**
+	 * password (at least four characters, at least one upper case character, at
+	 * least one number) no space allowed in password
+	 * 
+	 */
+	public boolean isValidPassword(String password) {
+<span class="fc" id="L72">		boolean valid = true;</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">		if (password.length() &lt; 4) {</span>
+<span class="fc" id="L74">			valid = false;</span>
+		}
+<span class="fc" id="L76">		String upperCaseChars = ATLEAST_ONE_UPPERCASE;</span>
+<span class="fc bfc" id="L77" title="All 4 branches covered.">		if (valid &amp;&amp; !password.matches(upperCaseChars)) {</span>
+<span class="fc" id="L78">			valid = false;</span>
+		}
+
+<span class="fc" id="L81">		String numbers = ATLEAST_ONE_NUMBER;</span>
+<span class="fc bfc" id="L82" title="All 4 branches covered.">		if (valid &amp;&amp; !password.matches(numbers)) {</span>
+<span class="fc" id="L83">			valid = false;</span>
+		}
+
+<span class="fc" id="L86">		String space = ATLEAST_ONE_SPACE;</span>
+<span class="fc bfc" id="L87" title="All 4 branches covered.">		if (valid &amp;&amp; password.matches(space)) {</span>
+<span class="fc" id="L88">			valid = false;</span>
+		}
+
+<span class="fc" id="L91">		return valid;</span>
+	}
+
+	public boolean isValidDate(String dateString) {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">		return DateUtil.getDate(dateString) != null;</span>
+	}
+
+	/*public static void main(String[] args) {
+		// System.err.println(new UserValidator().validatePassword(&quot;Test 1&quot;));
+		System.err.println(new UserValidator().isValidDate(&quot;1981-15-12&quot;));
+	}*/
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

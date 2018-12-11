@@ -1,0 +1,5 @@
+com\mycompany\demo\test\RestLayerTest.class
+com\mycompany\demo\test\DataPreparator.class
+com\mycompany\demo\test\ValidatorTest.class
+com\mycompany\demo\test\UserRegistrationApplicationTest.class
+com\mycompany\demo\test\ServiceTest.class

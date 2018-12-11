@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserRegistrationResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">user-registration-service</a> &gt; <a href="index.source.html" class="el_package">com.mycompany.demo.controller</a> &gt; <span class="el_source">UserRegistrationResource.java</span></div><h1>UserRegistrationResource.java</h1><pre class="source lang-java linenums">package com.mycompany.demo.controller;
+
+import java.util.Calendar;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.mycompany.demo.constant.CommonCodes;
+import com.mycompany.demo.dto.BaseResponse;
+import com.mycompany.demo.dto.User;
+import com.mycompany.demo.exception.UserAlreadyExistsException;
+import com.mycompany.demo.exception.UserBlackListedException;
+import com.mycompany.demo.service.UserService;
+import com.mycompany.demo.validator.UserValidator;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * A spring boot web application that offers a remote service interface (endpoint) to register a user.
+ *
+ * @author Riyaz Saiyed (saiyedriyaz@gmail.com)
+ * @version 1.0, 01 Dec 2018
+ */
+
+@RestController
+@RequestMapping(&quot;/user/service/&quot;)
+<span class="fc" id="L40">@Slf4j</span>
+<span class="fc" id="L41">public class UserRegistrationResource {</span>
+
+
+	@Autowired
+	private UserValidator userValidator;
+
+	@Autowired
+	private UserService userService;
+
+	@InitBinder(&quot;user&quot;)
+	public void setupBinder(WebDataBinder binder) {
+<span class="fc" id="L52">		binder.addValidators(userValidator);</span>
+<span class="fc" id="L53">	}</span>
+
+	/**
+	 * This method registers a user if he is not part of a blacklist and not already registered.
+	 * 
+	 * @param userTO Details of registering user
+	 * @return a registered user details
+	 * @throws UserBlackListedException if user is blacklisted
+	 * @throws UserAlreadyExistsException if user with same user name or/and SSN already exists
+	 */
+	@PostMapping(value = &quot;register&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity&lt;?&gt; saveFlightMonitorDetails(@Valid @RequestBody User userTO)
+			throws UserBlackListedException, UserAlreadyExistsException {
+
+<span class="fc" id="L67">		User serviceResponse = userService.registerUser(userTO);</span>
+		
+<span class="fc" id="L69">		BaseResponse baseTo = new BaseResponse();</span>
+<span class="fc" id="L70">		baseTo.setTimestamp(Calendar.getInstance().getTime());</span>
+<span class="fc" id="L71">		baseTo.setStatus(HttpStatus.OK.value());</span>
+<span class="fc" id="L72">		baseTo.setUser(serviceResponse);</span>
+		
+<span class="fc" id="L74">		return new ResponseEntity&lt;&gt;(baseTo, HttpStatus.OK);</span>
+	}
+	
+	/**
+	 * This method the list of all registered users.
+	 * 
+	 * @return a list of registered users.
+	 */
+	@GetMapping(value = &quot;listall&quot;, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity&lt;?&gt; listAllUsers() {
+<span class="fc" id="L84">		List&lt;User&gt; serviceResponse = userService.listAllUser();</span>
+		
+<span class="fc" id="L86">		BaseResponse baseTo = new BaseResponse();</span>
+<span class="fc" id="L87">		baseTo.setTimestamp(Calendar.getInstance().getTime());</span>
+<span class="fc" id="L88">		baseTo.setStatus(HttpStatus.OK.value());</span>
+<span class="fc" id="L89">		baseTo.setAllUsers(serviceResponse);</span>
+		
+<span class="fc" id="L91">		return new ResponseEntity&lt;&gt;(baseTo, HttpStatus.OK);</span>
+	}
+	
+
+	@ExceptionHandler(UserAlreadyExistsException.class)
+	private ResponseEntity&lt;BaseResponse&gt; handleException(UserAlreadyExistsException e) {
+<span class="fc" id="L97">		return createResponse(CommonCodes.ERROR_CODE.USER_EXISTS.getCode(),</span>
+<span class="fc" id="L98">				CommonCodes.ERROR_CODE.USER_EXISTS.getMessage(), e);</span>
+	}
+
+	@ExceptionHandler(UserBlackListedException.class)
+	private ResponseEntity&lt;BaseResponse&gt; handleException(UserBlackListedException e) {
+<span class="fc" id="L103">		return createResponse(CommonCodes.ERROR_CODE.USER_BLACKLISTED.getCode(),</span>
+<span class="fc" id="L104">				CommonCodes.ERROR_CODE.USER_BLACKLISTED.getMessage(), e);</span>
+	}
+
+	private ResponseEntity&lt;BaseResponse&gt; createResponse(String errorCode, String errorMessage, Exception e) {
+<span class="fc" id="L108">		BaseResponse baseTo = new BaseResponse();</span>
+		
+<span class="fc" id="L110">		baseTo.setStatus(HttpStatus.BAD_REQUEST.value());</span>
+		
+<span class="fc" id="L112">		com.mycompany.demo.dto.Error error = new com.mycompany.demo.dto.Error();</span>
+
+<span class="fc" id="L114">		error.setErrorCode(errorCode);</span>
+<span class="fc" id="L115">		error.setErrorDescription(errorMessage);</span>
+
+<span class="fc" id="L117">		baseTo.setError(error);</span>
+
+<span class="fc" id="L119">		log.error(&quot;Error occured: Details &quot; + e);</span>
+
+<span class="fc" id="L121">		return new ResponseEntity&lt;&gt;(baseTo, HttpStatus.BAD_REQUEST);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
